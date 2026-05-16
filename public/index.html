@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrepAI — AI Interview Prep for India</title>
+<meta name="description" content="Get AI-generated interview questions and perfect answers for any role. Free interview preparation tool for Indian job seekers.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --bg3:#1a1a25;
+  --card:#16161f;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.12);
+  --text:#f0f0f5;
+  --text2:#9090a8;
+  --text3:#5a5a72;
+  --accent:#6c63ff;
+  --accent2:#ff6584;
+  --accent3:#43e97b;
+  --r:10px;--rl:16px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
+
+.wrap{max-width:760px;margin:0 auto;padding:2rem 1.25rem 5rem;position:relative;z-index:1}
+
+/* HEADER */
+.header{text-align:center;padding:3rem 0 2.5rem}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:1.5rem}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px var(--accent)}
+.logo-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.1em;color:var(--text2);text-transform:uppercase}
+.header h1{font-family:'Syne',sans-serif;font-size:clamp(32px,7vw,56px);font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-0.02em}
+.header h1 .hl{color:var(--accent);position:relative;display:inline-block}
+.header h1 .hl::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
+.header p{font-size:16px;color:var(--text2);max-width:480px;margin:0 auto;line-height:1.7}
+
+/* STATS BAR */
+.stats{display:flex;align-items:center;justify-content:center;gap:2rem;margin:2rem 0;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text)}
+.stat-lbl{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* FORM CARD */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:1.75rem;margin-bottom:1.5rem}
+.form-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:1.25rem}
+.field{margin-bottom:1.25rem}
+.field:last-child{margin-bottom:0}
+.lbl{font-size:13px;color:var(--text2);font-weight:500;margin-bottom:8px;display:block}
+input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color 0.15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239090a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+select option{background:#1a1a25}
+textarea{min-height:80px;resize:vertical}
+
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tag{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);color:var(--text2);background:transparent;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.tag.active{background:var(--accent);color:#fff;border-color:transparent}
+.tag:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* GENERATE BUTTON */
+.gen-btn{width:100%;padding:16px;border-radius:var(--rl);border:none;background:linear-gradient(135deg,var(--accent),#8b5cf6);color:#fff;font-size:16px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.02em;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.gen-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#8b5cf6,var(--accent));opacity:0;transition:opacity 0.2s}
+.gen-btn:hover::before{opacity:1}
+.gen-btn:disabled{opacity:0.5;cursor:not-allowed}
+.gen-btn span{position:relative;z-index:1}
+
+/* LOADING */
+.loading{display:none;text-align:center;padding:3rem 1rem}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--text2)}
+.loading-steps{margin-top:1rem}
+.loading-step{font-size:13px;color:var(--text3);padding:4px 0;transition:color 0.3s}
+.loading-step.active{color:var(--accent3)}
+
+/* RESULTS */
+.results{display:none}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:gap}
+.results-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
+.results-meta{font-size:13px;color:var(--text3)}
+.reset-btn{padding:8px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.reset-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* QUESTION CARDS */
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem;margin-bottom:1rem;transition:border-color 0.2s;animation:fadeUp 0.4s ease both}
+.q-card:hover{border-color:var(--border2)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.q-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent);font-size:12px;font-weight:700;color:#fff;margin-bottom:12px;font-family:'Syne',sans-serif}
+.q-type{display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+.q-type.hr{background:rgba(255,101,132,0.15);color:var(--accent2)}
+.q-type.tech{background:rgba(108,99,255,0.15);color:var(--accent)}
+.q-type.behav{background:rgba(67,233,123,0.15);color:var(--accent3)}
+.q-type.sit{background:rgba(255,200,50,0.12);color:#ffc832}
+.q-text{font-size:15px;font-weight:500;color:var(--text);margin-bottom:14px;line-height:1.6}
+.ans-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:0}
+.ans-toggle:hover{opacity:0.8}
+.ans-box{display:none;margin-top:14px;padding:14px;background:var(--bg2);border-radius:var(--r);border-left:3px solid var(--accent);font-size:14px;color:var(--text2);line-height:1.8}
+.ans-box.open{display:block}
+.copy-ans{float:right;border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;padding:2px 6px}
+.copy-ans:hover{color:var(--text)}
+
+/* TIPS SECTION */
+.tips-card{background:linear-gradient(135deg,rgba(108,99,255,0.08),rgba(255,101,132,0.05));border:1px solid rgba(108,99,255,0.2);border-radius:var(--rl);padding:1.5rem;margin-top:1.5rem}
+.tips-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem;color:var(--accent)}
+.tip-item{display:flex;gap:10px;margin-bottom:10px;font-size:14px;color:var(--text2);line-height:1.6}
+.tip-item:last-child{margin-bottom:0}
+.tip-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:8px}
+
+/* DOWNLOAD BTN */
+.dl-btn{width:100%;padding:13px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:1rem;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.dl-btn:hover{background:var(--bg2);color:var(--text)}
+
+/* FOOTER */
+.footer{text-align:center;padding:2rem 0 0;font-size:12px;color:var(--text3)}
+
+@media(max-width:520px){.row{grid-template-columns:1fr}.stats{gap:1.25rem}.header h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      <div class="logo-text">PrepAI</div>
+    </div>
+    <h1>Crack your next <span class="hl">interview</span> with AI</h1>
+    <p>Get role-specific questions + perfect answers in 30 seconds. Free. No signup needed.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">50K+</div><div class="stat-lbl">Interviews Prepped</div></div>
+    <div class="stat"><div class="stat-num">200+</div><div class="stat-lbl">Roles Covered</div></div>
+    <div class="stat"><div class="stat-num">4.9★</div><div class="stat-lbl">User Rating</div></div>
+  </div>
+
+  <div id="formSection">
+    <div class="form-card">
+      <div class="form-title">Your Details</div>
+
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Job Role</label>
+          <input type="text" id="role" placeholder="e.g. Software Engineer" value="Software Engineer">
+        </div>
+        <div class="field">
+          <label class="lbl">Company (optional)</label>
+          <input type="text" id="company" placeholder="e.g. TCS, Infosys, Startup">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Experience Level</label>
+          <select id="exp">
+            <option value="fresher">Fresher (0-1 year)</option>
+            <option value="junior">Junior (1-3 years)</option>
+            <option value="mid" selected>Mid-level (3-5 years)</option>
+            <option value="senior">Senior (5+ years)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Interview Round</label>
+          <select id="round">
+            <option value="HR">HR Round</option>
+            <option value="Technical" selected>Technical Round</option>
+            <option value="Managerial">Managerial Round</option>
+            <option value="All">All Rounds</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Your Key Skills</label>
+        <input type="text" id="skills" placeholder="e.g. Python, React, SQL, System Design">
+      </div>
+
+      <div class="field">
+        <label class="lbl">Question Focus</label>
+        <div class="tags" id="focusTags">
+          <button class="tag active" onclick="toggleTag(this)">Behavioural</button>
+          <button class="tag active" onclick="toggleTag(this)">Technical</button>
+          <button class="tag" onclick="toggleTag(this)">Situational</button>
+          <button class="tag" onclick="toggleTag(this)">Leadership</button>
+          <button class="tag" onclick="toggleTag(this)">Salary</button>
+          <button class="tag" onclick="toggleTag(this)">Culture Fit</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      <span>⚡ Generate My Interview Questions</span>
+    </button>
+  </div>
+
+  <div class="loading" id="loadingSection">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">AI is preparing your questions...</div>
+    <div class="loading-steps">
+      <div class="loading-step active" id="step1">✦ Analyzing role requirements</div>
+      <div class="loading-step" id="step2">✦ Generating targeted questions</div>
+      <div class="loading-step" id="step3">✦ Crafting perfect answers</div>
+      <div class="loading-step" id="step4">✦ Adding insider tips</div>
+    </div>
+  </div>
+
+  <div class="results" id="resultsSection">
+    <div class="results-header">
+      <div>
+        <div class="results-title" id="resultsTitle">Interview Questions</div>
+        <div class="results-meta" id="resultsMeta"></div>
+      </div>
+      <button class="reset-btn" onclick="reset()">← New Search</button>
+    </div>
+    <div id="questionsList"></div>
+    <div class="tips-card" id="tipsCard" style="display:none">
+      <div class="tips-title">💡 Insider Tips for This Role</div>
+      <div id="tipsList"></div>
+    </div>
+    <button class="dl-btn" onclick="downloadAnswers()">⬇ Download All Q&A as Text</button>
+  </div>
+
+  <div class="footer">PrepAI · Free AI Interview Preparation · Built for India 🇮🇳</div>
+</div>
+
+<script>
+var generatedData = null;
+
+function toggleTag(btn) {
+  btn.classList.toggle('active');
+}
+
+function getActiveTags() {
+  return Array.from(document.querySelectorAll('#focusTags .tag.active')).map(t => t.textContent).join(', ');
+}
+
+async function generate() {
+  var role = document.getElementById('role').value.trim();
+  if (!role) { alert('Please enter a job role'); return; }
+
+  var company = document.getElementById('company').value.trim();
+  var exp = document.getElementById('exp').value;
+  var round = document.getElementById('round').value;
+  var skills = document.getElementById('skills').value.trim();
+  var focus = getActiveTags();
+
+  var expMap = {fresher:'fresher with 0-1 year experience', junior:'junior professional with 1-3 years experience', mid:'mid-level professional with 3-5 years experience', senior:'senior professional with 5+ years experience'};
+
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('loadingSection').style.display = 'block';
+
+  var steps = ['step1','step2','step3','step4'];
+  var si = 0;
+  var stepInterval = setInterval(function() {
+    if (si > 0) document.getElementById(steps[si-1]).classList.remove('active');
+    if (si < steps.length) { document.getElementById(steps[si]).classList.add('active'); si++; }
+    else clearInterval(stepInterval);
+  }, 1200);
+
+  var prompt = `You are an expert Indian interview coach. Generate interview questions and answers for:
+
+Role: ${role}
+${company ? 'Company: '+company : ''}
+Experience: ${expMap[exp]}
+Round: ${round} interview
+Skills: ${skills || 'General'}
+Focus areas: ${focus || 'Technical, Behavioural'}
+
+Generate exactly 10 interview questions with detailed answers. Include a mix of question types.
+
+Respond ONLY with a JSON object (no markdown, no backticks):
+{
+  "questions": [
+    {
+      "num": 1,
+      "type": "Technical",
+      "question": "Question text here?",
+      "answer": "Detailed answer with specific examples, frameworks, and tips for Indian job market. 3-4 sentences minimum."
+    }
+  ],
+  "tips": [
+    "Specific tip for this role/company",
+    "Another insider tip",
+    "Third tip"
+  ]
+}
+
+Types must be one of: Technical, Behavioural, Situational, HR
+Make answers specific, practical, and tailored for Indian job market.`;
+
+  try {
+    var res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: role, company: company, exp: exp, round: round, skills: skills, focus: focus })
+    });
+
+    clearInterval(stepInterval);
+    var result = await res.json();
+    if (result.error) throw new Error(result.error);
+    generatedData = result;
+    generatedData.role = role;
+    generatedData.company = company;
+    generatedData.round = round;
+
+    showResults(result, role, company, round);
+
+  } catch(err) {
+    clearInterval(stepInterval);
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('formSection').style.display = 'block';
+    alert('Something went wrong. Please try again.');
+    console.error(err);
+  }
+}
+
+function showResults(result, role, company, round) {
+  document.getElementById('loadingSection').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'block';
+
+  document.getElementById('resultsTitle').textContent = role + ' Interview Questions';
+  document.getElementById('resultsMeta').textContent = (company ? company + ' · ' : '') + round + ' Round · ' + result.questions.length + ' Questions';
+
+  var typeColors = {Technical:'tech', Behavioural:'behav', Situational:'sit', HR:'hr'};
+
+  var html = result.questions.map(function(q, i) {
+    var typeClass = typeColors[q.type] || 'tech';
+    return '<div class="q-card" style="animation-delay:' + (i * 0.06) + 's">' +
+      '<div><span class="q-num">' + q.num + '</span><span class="q-type ' + typeClass + '">' + q.type + '</span></div>' +
+      '<div class="q-text">' + q.question + '</div>' +
+      '<button class="ans-toggle" onclick="toggleAns(this)">▶ Show Answer</button>' +
+      '<div class="ans-box"><button class="copy-ans" onclick="copyAns(this)">Copy</button>' + q.answer + '</div>' +
+      '</div>';
+  }).join('');
+
+  document.getElementById('questionsList').innerHTML = html;
+
+  if (result.tips && result.tips.length) {
+    document.getElementById('tipsCard').style.display = 'block';
+    document.getElementById('tipsList').innerHTML = result.tips.map(function(t) {
+      return '<div class="tip-item"><div class="tip-dot"></div><div>' + t + '</div></div>';
+    }).join('');
+  }
+}
+
+function toggleAns(btn) {
+  var box = btn.nextElementSibling;
+  var isOpen = box.classList.contains('open');
+  box.classList.toggle('open');
+  btn.textContent = isOpen ? '▶ Show Answer' : '▼ Hide Answer';
+}
+
+function copyAns(btn) {
+  var text = btn.parentElement.textContent.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function reset() {
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('questionsList').innerHTML = '';
+  document.getElementById('tipsCard').style.display = 'none';
+}
+
+function downloadAnswers() {
+  if (!generatedData) return;
+  var text = generatedData.role + ' Interview Prep\n';
+  if (generatedData.company) text += 'Company: ' + generatedData.company + '\n';
+  text += generatedData.round + ' Round\n\n';
+  text += '='.repeat(50) + '\n\n';
+  generatedData.questions.forEach(function(q) {
+    text += 'Q' + q.num + '. [' + q.type + '] ' + q.question + '\n\n';
+    text += 'Answer: ' + q.answer + '\n\n';
+    text += '-'.repeat(40) + '\n\n';
+  });
+  if (generatedData.tips) {
+    text += 'INSIDER TIPS\n' + '='.repeat(50) + '\n';
+    generatedData.tips.forEach(function(t, i) { text += (i+1) + '. ' + t + '\n'; });
+  }
+  var blob = new Blob([text], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = generatedData.role.replace(/\s+/g,'-') + '-interview-prep.txt';
+  a.click();
+}
+</script>
+</body>
+</html>
