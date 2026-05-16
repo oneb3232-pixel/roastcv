@@ -1,16 +1,12 @@
 {
-  "version": 2
-}
-{
   "version": 2,
-  "functions": {
-    "roast.js": {
-      "runtime": "@vercel/node"
-    }
-  },
+  "builds": [
+    { "src": "api/roast.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" }
+  ],
   "routes": [
-    { "src": "/api/roast", "dest": "/roast.js" },
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/resume-roaster.html", "dest": "/resume-roaster.html" }
+    { "src": "/api/roast", "dest": "/api/roast.js" },
+    { "src": "/(.*\\.html)", "dest": "/$1" },
+    { "src": "/", "dest": "/index.html" }
   ]
 }
