@@ -3,339 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Resume Roaster — Honest Feedback + Rewrite</title>
+<title>RoastCV — AI Resume Feedback</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
-    --text: #1a1a18; --text2: #6b6b67; --text3: #9e9e99;
-    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-    --info-bg: #e6f1fb; --info-text: #185fa5;
-    --radius: 8px; --radius-lg: 12px;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
-  .page { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-  .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--info-bg); color: var(--info-text); font-size: 12px; padding: 3px 10px; border-radius: var(--radius); margin-bottom: 10px; }
-  h1 { font-size: 28px; font-weight: 600; margin-bottom: 6px; }
-  .subtitle { font-size: 15px; color: var(--text2); margin-bottom: 2rem; line-height: 1.5; }
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
-  .label { font-size: 13px; color: var(--text2); font-weight: 500; margin-bottom: 8px; }
-  textarea { width: 100%; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; min-height: 200px; font-family: inherit; color: var(--text); background: var(--bg2); }
-  textarea:focus { outline: none; border-color: var(--border2); }
-  .tip-row { font-size: 12px; color: var(--text3); margin-top: 8px; }
-  .options-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .opt-btn { border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 6px 14px; font-size: 13px; cursor: pointer; background: transparent; color: var(--text2); transition: all 0.15s; }
-  .opt-btn.active { background: var(--info-bg); color: var(--info-text); border-color: transparent; }
-  .opt-btn:hover:not(.active) { background: var(--bg2); }
-  .action-btn { width: 100%; padding: 14px; border-radius: var(--radius-lg); border: 0.5px solid var(--border2); background: transparent; font-size: 16px; font-weight: 500; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; margin-bottom: 1.5rem; }
-  .action-btn:hover { background: var(--bg2); }
-  .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-  .loading-bar { height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; }
-  .loading-fill { height: 100%; width: 0; background: var(--info-text); border-radius: 2px; transition: width 0.6s linear; }
-  .loading-msg { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
-  .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-  .score-card { background: var(--bg2); border-radius: var(--radius); padding: 1rem; text-align: center; }
-  .score-num { font-size: 30px; font-weight: 600; margin-bottom: 2px; }
-  .score-lbl { font-size: 12px; color: var(--text2); }
-  .tab-row { display: flex; gap: 4px; margin-bottom: 1rem; }
-  .tab { padding: 7px 16px; border-radius: var(--radius); font-size: 13px; cursor: pointer; border: 0.5px solid transparent; color: var(--text2); background: transparent; }
-  .tab.active { background: var(--bg2); border-color: var(--border); color: var(--text); }
-  .panel { display: none; } .panel.active { display: block; }
-  .roast-item { padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; color: var(--text); line-height: 1.6; display: flex; gap: 10px; }
-  .roast-item:last-child { border-bottom: none; }
-  .improved-box { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
-  .tip-item { padding: 10px 0; border-bottom: 0.5px solid var(--border); }
-  .tip-item:last-child { border-bottom: none; }
-  .tip-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
-  .tip-detail { font-size: 13px; color: var(--text2); line-height: 1.6; }
-  .copy-btn { float: right; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 5px 12px; font-size: 12px; cursor: pointer; background: transparent; color: var(--text2); }
-  .copy-btn:hover { background: var(--bg2); }
-  #resultCard { display: none; }
-
-  /* Freemium banner */
-  .free-counter { display: flex; align-items: center; justify-content: space-between; background: #fffbeb; border: 0.5px solid #fac775; border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 1rem; font-size: 14px; }
-  .free-counter span { color: #854f0b; font-weight: 500; }
-  .upgrade-btn { background: #185fa5; color: #fff; border: none; border-radius: var(--radius); padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 500; }
-  .upgrade-btn:hover { background: #0c447c; }
-
-  /* Paywall overlay */
-  .paywall { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 1rem; }
-  .paywall-box { background: #fff; border-radius: var(--radius-lg); padding: 2rem; max-width: 420px; width: 100%; text-align: center; }
-  .paywall-box h2 { font-size: 22px; margin-bottom: 8px; }
-  .paywall-box p { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.6; }
-  .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
-  .plan-card { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; cursor: pointer; transition: all 0.15s; text-align: left; }
-  .plan-card:hover { border-color: #185fa5; background: var(--info-bg); }
-  .plan-card.featured { border: 2px solid #185fa5; }
-  .plan-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-  .plan-price { font-size: 22px; font-weight: 700; color: #185fa5; }
-  .plan-price span { font-size: 13px; color: var(--text2); font-weight: 400; }
-  .plan-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
-  .popular-badge { display: inline-block; background: var(--info-bg); color: var(--info-text); font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
-  .close-paywall { font-size: 13px; color: var(--text3); cursor: pointer; margin-top: 0.5rem; display: block; }
-  .close-paywall:hover { color: var(--text2); }
-
-  @media (max-width: 500px) { .score-grid { grid-template-columns: repeat(2,1fr); } h1 { font-size: 22px; } .plan-grid { grid-template-columns: 1fr; } }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#6b6b67;--text3:#9e9e99;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);--blue-bg:#e6f1fb;--blue:#185fa5;--r:8px;--rl:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
+.page{max-width:720px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-bg);color:var(--blue);font-size:12px;padding:3px 10px;border-radius:var(--r);margin-bottom:10px}
+h1{font-size:28px;font-weight:600;margin-bottom:6px}
+.sub{font-size:15px;color:var(--text2);margin-bottom:2rem;line-height:1.5}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem}
+.lbl{font-size:13px;color:var(--text2);font-weight:500;margin-bottom:8px}
+textarea{width:100%;border:0.5px solid var(--border);border-radius:var(--r);padding:12px;font-size:14px;line-height:1.6;resize:vertical;min-height:200px;font-family:inherit;color:var(--text);background:var(--bg2)}
+textarea:focus{outline:none;border-color:var(--border2)}
+.tip{font-size:12px;color:var(--text3);margin-top:8px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.ob{border:0.5px solid var(--border2);border-radius:var(--r);padding:6px 14px;font-size:13px;cursor:pointer;background:transparent;color:var(--text2);transition:all 0.15s}
+.ob.active{background:var(--blue-bg);color:var(--blue);border-color:transparent}
+.ob:hover:not(.active){background:var(--bg2)}
+.abtn{width:100%;padding:14px;border-radius:var(--rl);border:0.5px solid var(--border2);background:transparent;font-size:16px;font-weight:500;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;margin-bottom:1.5rem}
+.abtn:hover{background:var(--bg2)}
+.abtn:disabled{opacity:0.45;cursor:not-allowed}
+.lbar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:0.5rem}
+.lfill{height:100%;width:0;background:var(--blue);border-radius:2px;transition:width 0.6s linear}
+.lmsg{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.sc{background:var(--bg2);border-radius:var(--r);padding:1rem;text-align:center}
+.sn{font-size:30px;font-weight:600;margin-bottom:2px}
+.sl{font-size:12px;color:var(--text2)}
+.tabs{display:flex;gap:4px;margin-bottom:1rem}
+.tab{padding:7px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;border:0.5px solid transparent;color:var(--text2);background:transparent}
+.tab.active{background:var(--bg2);border-color:var(--border);color:var(--text)}
+.panel{display:none}.panel.active{display:block}
+.ri{padding:10px 0;border-bottom:0.5px solid var(--border);font-size:14px;color:var(--text);line-height:1.6;display:flex;gap:10px}
+.ri:last-child{border-bottom:none}
+.ib{font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap}
+.ti{padding:10px 0;border-bottom:0.5px solid var(--border)}
+.ti:last-child{border-bottom:none}
+.tt{font-size:14px;font-weight:500;margin-bottom:3px}
+.td{font-size:13px;color:var(--text2);line-height:1.6}
+.cb{float:right;border:0.5px solid var(--border);border-radius:var(--r);padding:5px 12px;font-size:12px;cursor:pointer;background:transparent;color:var(--text2)}
+.cb:hover{background:var(--bg2)}
+#rc{display:none}
+.fc{display:flex;align-items:center;justify-content:space-between;background:#fffbeb;border:0.5px solid #fac775;border-radius:var(--rl);padding:12px 16px;margin-bottom:1rem;font-size:14px}
+.fc span{color:#854f0b;font-weight:500}
+.ub{background:var(--blue);color:#fff;border:none;border-radius:var(--r);padding:7px 16px;font-size:13px;cursor:pointer;font-weight:500}
+.pw{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
+.pb{background:#fff;border-radius:var(--rl);padding:2rem;max-width:420px;width:100%;text-align:center}
+.pb h2{font-size:22px;margin-bottom:8px}
+.pb p{font-size:14px;color:var(--text2);margin-bottom:1.5rem;line-height:1.6}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.pc{border:0.5px solid var(--border);border-radius:var(--rl);padding:1rem;cursor:pointer;transition:all 0.15s;text-align:left}
+.pc:hover{border-color:var(--blue);background:var(--blue-bg)}
+.pc.feat{border:2px solid var(--blue)}
+.pn{font-size:13px;font-weight:600;margin-bottom:2px}
+.pp{font-size:22px;font-weight:700;color:var(--blue)}
+.pp span{font-size:13px;color:var(--text2);font-weight:400}
+.pd{font-size:12px;color:var(--text2);margin-top:4px}
+.pbdg{display:inline-block;background:var(--blue-bg);color:var(--blue);font-size:11px;padding:2px 8px;border-radius:4px;margin-bottom:6px}
+.cp{font-size:13px;color:var(--text3);cursor:pointer;margin-top:0.5rem;display:block}
+@media(max-width:500px){.sgrid{grid-template-columns:repeat(2,1fr)}h1{font-size:22px}.pg{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- Paywall Modal -->
-<div class="paywall" id="paywallModal" style="display:none">
-  <div class="paywall-box">
-    <h2>🔥 Free roasts used up!</h2>
-    <p>You've used your 2 free roasts today. Upgrade to keep roasting and get unlimited rewrites, ATS scores, and expert tips.</p>
-    <div class="plan-grid">
-      <div class="plan-card" onclick="initPayment(49,'credits')">
-        <div class="plan-name">Credits</div>
-        <div class="plan-price">₹49 <span>one-time</span></div>
-        <div class="plan-desc">5 roasts, never expire</div>
+<div class="pw" id="pm" style="display:none">
+  <div class="pb">
+    <h2>Free roasts used up!</h2>
+    <p>Upgrade to keep roasting and get unlimited rewrites, ATS scores, and expert tips.</p>
+    <div class="pg">
+      <div class="pc" onclick="pay(49,'credits')">
+        <div class="pn">Credits</div>
+        <div class="pp">49 <span>one-time</span></div>
+        <div class="pd">5 roasts, never expire</div>
       </div>
-      <div class="plan-card featured" onclick="initPayment(99,'monthly')">
-        <div class="popular-badge">Most Popular</div>
-        <div class="plan-name">Monthly</div>
-        <div class="plan-price">₹99 <span>/month</span></div>
-        <div class="plan-desc">Unlimited roasts + priority</div>
+      <div class="pc feat" onclick="pay(99,'monthly')">
+        <div class="pbdg">Most Popular</div>
+        <div class="pn">Monthly</div>
+        <div class="pp">99 <span>/month</span></div>
+        <div class="pd">Unlimited roasts</div>
       </div>
     </div>
-    <span class="close-paywall" onclick="document.getElementById('paywallModal').style.display='none'">Maybe later</span>
+    <span class="cp" onclick="document.getElementById('pm').style.display='none'">Maybe later</span>
   </div>
 </div>
 
 <div class="page">
   <div class="badge"><i class="ti ti-flame"></i> AI-Powered</div>
   <h1>Resume Roaster</h1>
-  <p class="subtitle">Honest AI feedback on what's weak, what's generic, and what hiring managers skip — plus a rewritten version that actually works.</p>
+  <p class="sub">Honest AI feedback on what's weak — plus a rewritten version that actually works.</p>
 
-  <!-- Free uses counter -->
-  <div class="free-counter" id="freeCounter">
-    <span id="counterText">✦ 2 free roasts remaining today</span>
-    <button class="upgrade-btn" onclick="document.getElementById('paywallModal').style.display='flex'">Upgrade ↗</button>
+  <div class="fc" id="fc">
+    <span id="ct">2 free roasts remaining today</span>
+    <button class="ub" onclick="document.getElementById('pm').style.display='flex'">Upgrade</button>
   </div>
 
   <div class="card">
-    <div class="label">Your resume text</div>
-    <textarea id="resumeInput" placeholder="Paste your resume here...
-
-Example:
-John Doe | john@email.com | LinkedIn
-Software Engineer — 3 years experience
-Skills: Python, JavaScript, React, SQL
-Experience: Built web apps, worked in teams...
-Education: B.Tech Computer Science 2021"></textarea>
-    <div class="tip-row"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px"></i> Your data never leaves your browser. Paste plain text — no PDF needed.</div>
+    <div class="lbl">Your resume text</div>
+    <textarea id="ri" placeholder="Paste your resume here..."></textarea>
+    <div class="tip">Your data never leaves your browser. Paste plain text — no PDF needed.</div>
   </div>
 
   <div class="card">
-    <div class="label">Target role</div>
-    <div class="options-row" id="roleOptions" style="margin-bottom:1rem">
-      <button class="opt-btn active" onclick="selectOpt(this,'role','Software Engineer')">Software Engineer</button>
-      <button class="opt-btn" onclick="selectOpt(this,'role','Product Manager')">Product Manager</button>
-      <button class="opt-btn" onclick="selectOpt(this,'role','Data Scientist')">Data Scientist</button>
-      <button class="opt-btn" onclick="selectOpt(this,'role','Designer')">Designer</button>
-      <button class="opt-btn" onclick="selectOpt(this,'role','Marketing')">Marketing</button>
+    <div class="lbl">Target role</div>
+    <div class="opts" id="ro" style="margin-bottom:1rem">
+      <button class="ob active" onclick="sel(this,'role','Software Engineer')">Software Engineer</button>
+      <button class="ob" onclick="sel(this,'role','Product Manager')">Product Manager</button>
+      <button class="ob" onclick="sel(this,'role','Data Scientist')">Data Scientist</button>
+      <button class="ob" onclick="sel(this,'role','Designer')">Designer</button>
+      <button class="ob" onclick="sel(this,'role','Marketing')">Marketing</button>
     </div>
-    <div class="label">Roast intensity</div>
-    <div class="options-row" id="intensityOptions">
-      <button class="opt-btn" onclick="selectOpt(this,'intensity','gentle')">🌱 Gentle</button>
-      <button class="opt-btn active" onclick="selectOpt(this,'intensity','honest')">🎯 Honest</button>
-      <button class="opt-btn" onclick="selectOpt(this,'intensity','brutal')">🔥 Brutal</button>
+    <div class="lbl">Roast intensity</div>
+    <div class="opts" id="io">
+      <button class="ob" onclick="sel(this,'int','gentle')">Gentle</button>
+      <button class="ob active" onclick="sel(this,'int','honest')">Honest</button>
+      <button class="ob" onclick="sel(this,'int','brutal')">Brutal</button>
     </div>
   </div>
 
-  <button class="action-btn" id="roastBtn" onclick="roastResume()">
+  <button class="abtn" id="rb" onclick="roast()">
     <i class="ti ti-flame"></i> Roast my resume
   </button>
 
-  <div id="loadingSection" style="display:none">
-    <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
-    <div class="loading-msg" id="loadingMsg">Analyzing your resume...</div>
+  <div id="ls" style="display:none">
+    <div class="lbar"><div class="lfill" id="lf"></div></div>
+    <div class="lmsg" id="lm">Analyzing...</div>
   </div>
 
-  <div class="card" id="resultCard">
-    <div class="score-grid" id="scoreGrid"></div>
-    <div class="tab-row">
-      <button class="tab active" onclick="switchTab(this,'roast')"><i class="ti ti-flame" style="font-size:14px;vertical-align:-2px"></i> Roast</button>
-      <button class="tab" onclick="switchTab(this,'improved')"><i class="ti ti-sparkles" style="font-size:14px;vertical-align:-2px"></i> Improved</button>
-      <button class="tab" onclick="switchTab(this,'tips')"><i class="ti ti-bulb" style="font-size:14px;vertical-align:-2px"></i> Tips</button>
+  <div class="card" id="rc">
+    <div class="sgrid" id="sg"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="stab(this,'roast')">Roast</button>
+      <button class="tab" onclick="stab(this,'imp')">Improved</button>
+      <button class="tab" onclick="stab(this,'tips')">Tips</button>
     </div>
-    <div class="panel active" id="panel-roast"><div id="roastList"></div></div>
-    <div class="panel" id="panel-improved">
-      <button class="copy-btn" onclick="copyText()"><i class="ti ti-copy" style="font-size:13px;vertical-align:-2px"></i> Copy</button>
-      <div class="improved-box" id="improvedText" style="clear:both;padding-top:8px"></div>
+    <div class="panel active" id="panel-roast"><div id="rl"></div></div>
+    <div class="panel" id="panel-imp">
+      <button class="cb" onclick="cp()">Copy</button>
+      <div class="ib" id="it" style="clear:both;padding-top:8px"></div>
     </div>
-    <div class="panel" id="panel-tips"><div id="tipsList"></div></div>
+    <div class="panel" id="panel-tips"><div id="tl"></div></div>
   </div>
 </div>
 
 <script>
-let role = 'Software Engineer', intensity = 'honest';
-
-// ── Free usage tracking ──
-const FREE_LIMIT = 2;
-function getUsed() { return parseInt(localStorage.getItem('roast_used')||'0'); }
-function addUsed() { localStorage.setItem('roast_used', getUsed()+1); updateCounter(); }
-function updateCounter() {
-  const rem = Math.max(0, FREE_LIMIT - getUsed());
-  const isPaid = localStorage.getItem('roast_paid') === 'true';
-  const el = document.getElementById('freeCounter');
-  if(isPaid) { el.innerHTML = '<span>✦ Unlimited roasts — Pro plan active</span>'; return; }
-  document.getElementById('counterText').textContent = rem > 0
-    ? `✦ ${rem} free roast${rem===1?'':'s'} remaining today`
-    : '✦ Free roasts used up — upgrade to continue';
+var role='Software Engineer',inten='honest';
+var FL=2;
+function gu(){return parseInt(localStorage.getItem('ru')||'0')}
+function au(){localStorage.setItem('ru',gu()+1);uc()}
+function uc(){
+  var r=Math.max(0,FL-gu());
+  var p=localStorage.getItem('rp')==='true';
+  if(p){document.getElementById('ct').textContent='Unlimited — Pro active';return}
+  document.getElementById('ct').textContent=r>0?r+' free roast'+(r===1?'':'s')+' remaining today':'Free roasts used up';
 }
-updateCounter();
+uc();
 
-// ── Razorpay payment ──
-function initPayment(amount, plan) {
-  // REPLACE with your actual Razorpay Key ID from dashboard.razorpay.com
-  const RAZORPAY_KEY = 'rzp_test_SpkXvKksZ2aj7F';
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: amount * 100,
-    currency: 'INR',
-    name: 'Resume Roaster',
-    description: plan === 'monthly' ? 'Monthly Plan — Unlimited Roasts' : '5 Resume Credits',
-    theme: { color: '#185fa5' },
-    handler: function(response) {
-      // Payment success — unlock roasts
-      localStorage.setItem('roast_paid', 'true');
-      localStorage.setItem('roast_plan', plan);
-      document.getElementById('paywallModal').style.display = 'none';
-      updateCounter();
-      alert('Payment successful! You now have unlimited roasts.');
-      // In production: verify payment on your backend using response.razorpay_payment_id
-    },
-    modal: { ondismiss: function() { console.log('Payment cancelled'); } }
+function pay(amt,plan){
+  var o={
+    key:'rzp_test_SpkXvKksZ2aj7F',
+    amount:amt*100,currency:'INR',
+    name:'Resume Roaster',
+    description:plan==='monthly'?'Monthly Plan':'5 Credits',
+    theme:{color:'#185fa5'},
+    handler:function(r){
+      localStorage.setItem('rp','true');
+      document.getElementById('pm').style.display='none';
+      uc();
+      alert('Payment successful! Unlimited roasts unlocked.');
+    }
   };
-  const rzp = new Razorpay(options);
-  rzp.open();
+  var rzp=new Razorpay(o);rzp.open();
 }
 
-function selectOpt(btn, type, val) {
-  const group = type === 'role' ? 'roleOptions' : 'intensityOptions';
-  document.querySelectorAll('#'+group+' .opt-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if(type==='role') role=val; else intensity=val;
+function sel(b,t,v){
+  var g=t==='role'?'ro':'io';
+  document.querySelectorAll('#'+g+' .ob').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active');
+  if(t==='role')role=v;else inten=v;
 }
 
-function switchTab(btn, name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-'+name).classList.add('active');
+function stab(b,n){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active');
+  document.getElementById('panel-'+n).classList.add('active');
 }
 
-function animateBar(pct, ms) {
-  const f = document.getElementById('loadingFill');
-  f.style.transition = `width ${ms}ms linear`;
-  f.style.width = pct + '%';
+function ab(p,ms){
+  var f=document.getElementById('lf');
+  f.style.transition='width '+ms+'ms linear';
+  f.style.width=p+'%';
 }
 
-async function roastResume() {
-  const isPaid = localStorage.getItem('roast_paid') === 'true';
-  if(!isPaid && getUsed() >= FREE_LIMIT) {
-    document.getElementById('paywallModal').style.display = 'flex';
-    return;
-  }
+async function roast(){
+  var p=localStorage.getItem('rp')==='true';
+  if(!p&&gu()>=FL){document.getElementById('pm').style.display='flex';return}
+  var txt=document.getElementById('ri').value.trim();
+  if(!txt||txt.length<50){alert('Please paste at least 50 characters.');return}
+  var btn=document.getElementById('rb');
+  btn.disabled=true;
+  document.getElementById('ls').style.display='block';
+  document.getElementById('rc').style.display='none';
+  document.getElementById('lm').textContent='Analyzing your resume...';
+  ab(25,600);
 
-  const resumeText = document.getElementById('resumeInput').value.trim();
-  if (!resumeText || resumeText.length < 50) { alert('Please paste at least 50 characters of your resume.'); return; }
-
-  const btn = document.getElementById('roastBtn');
-  btn.disabled = true;
-  document.getElementById('loadingSection').style.display = 'block';
-  document.getElementById('resultCard').style.display = 'none';
-  document.getElementById('loadingMsg').textContent = 'Analyzing your resume...';
-  animateBar(25, 600);
-
-  const intensityMap = {
-    gentle: 'Be encouraging and kind but still identify real weaknesses clearly.',
-    honest: 'Be direct and honest. Point out generic phrases, weak verbs, and missing quantification.',
-    brutal: 'Be brutally honest and slightly sarcastic. Roast hard but keep it professional and constructive.'
+  var im={
+    gentle:'Be encouraging but identify real weaknesses clearly.',
+    honest:'Be direct and honest. Point out generic phrases and weak verbs.',
+    brutal:'Be brutally honest and slightly sarcastic but constructive.'
   };
 
-  const prompt = `You are an expert resume reviewer and hiring manager. Analyze this resume for the role of ${role}.
+  var prompt='You are an expert resume reviewer. Analyze this resume for the role of '+role+'.\n\n'+im[inten]+'\n\nResume:\n'+txt+'\n\nRespond ONLY with a JSON object (no markdown, no backticks) in this exact format:\n{"scores":{"overall":62,"impact":45,"clarity":70,"ats":55},"roasts":["C1","C2","C3","C4","C5"],"improved":"Full improved resume text","tips":[{"tip":"Title","detail":"Explanation"},{"tip":"Title","detail":"Explanation"},{"tip":"Title","detail":"Explanation"}]}\nScores 0-100. Mediocre resume = 40-65.';
 
-${intensityMap[intensity]}
-
-Resume:
-${resumeText}
-
-Respond ONLY with a JSON object (no markdown, no backticks, no extra text) in this exact format:
-{
-  "scores": { "overall": 62, "impact": 45, "clarity": 70, "ats": 55 },
-  "roasts": ["Criticism 1","Criticism 2","Criticism 3","Criticism 4","Criticism 5"],
-  "improved": "Full improved resume text with stronger action verbs, quantified achievements, and better structure",
-  "tips": [
-    {"tip": "Tip title", "detail": "Explanation"},
-    {"tip": "Tip title", "detail": "Explanation"},
-    {"tip": "Tip title", "detail": "Explanation"}
-  ]
-}
-Scores are 0-100. Be accurate — a mediocre resume scores 40-65, not 85+.`;
-
-  try {
-    animateBar(60, 2500);
-    document.getElementById('loadingMsg').textContent = 'AI is reading between the lines...';
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-api-key': 'sk-ant-api03-Xb8jXLGE1zXl2sFABXrPRSAuFIoff9kRb5H9qBH_zrhTXC',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+  try{
+    ab(60,2500);
+    document.getElementById('lm').textContent='AI is reading between the lines...';
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':'sk-ant-api03-Xb8jXLGE1zXl2sFABXrPRSAuFIoff9kRb5H9qBH_zrhTXC',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
     });
+    ab(90,400);
+    document.getElementById('lm').textContent='Preparing your roast...';
+    var d=await res.json();
+    var raw=d.content.map(function(b){return b.text||''}).join('');
+    var result=JSON.parse(raw.replace(/```json|```/g,'').trim());
 
-    animateBar(90, 400);
-    document.getElementById('loadingMsg').textContent = 'Preparing your roast...';
-    const data = await res.json();
-    const raw = data.content.map(b => b.text||'').join('');
-    const result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('ls').style.display='none';
+    document.getElementById('rc').style.display='block';
 
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('resultCard').style.display = 'block';
+    var colors={overall:'#378ADD',impact:'#D85A30',clarity:'#1D9E75',ats:'#7F77DD'};
+    var labels={overall:'Overall',impact:'Impact',clarity:'Clarity',ats:'ATS Score'};
+    document.getElementById('sg').innerHTML=Object.entries(result.scores).map(function(e){
+      return '<div class="sc"><div class="sn" style="color:'+colors[e[0]]+'">'+Math.round(e[1])+'</div><div class="sl">'+labels[e[0]]+'</div></div>';
+    }).join('');
 
-    const colors = {overall:'#378ADD',impact:'#D85A30',clarity:'#1D9E75',ats:'#7F77DD'};
-    const labels = {overall:'Overall',impact:'Impact',clarity:'Clarity',ats:'ATS Score'};
-    document.getElementById('scoreGrid').innerHTML = Object.entries(result.scores).map(([k,v]) =>
-      `<div class="score-card"><div class="score-num" style="color:${colors[k]}">${Math.round(v)}</div><div class="score-lbl">${labels[k]}</div></div>`
-    ).join('');
+    document.getElementById('rl').innerHTML=result.roasts.map(function(r){
+      return '<div class="ri"><span style="flex-shrink:0;margin-top:2px"><i class="ti ti-alert-triangle" style="font-size:16px;color:#9e9e99"></i></span><span>'+r+'</span></div>';
+    }).join('');
 
-    const icons = ['ti-alert-triangle','ti-mood-sad','ti-x','ti-minus','ti-alert-circle'];
-    document.getElementById('roastList').innerHTML = result.roasts.map((r,i) =>
-      `<div class="roast-item"><span style="flex-shrink:0;margin-top:2px"><i class="ti ${icons[i]||'ti-point'}" style="font-size:16px;color:#9e9e99"></i></span><span>${r}</span></div>`
-    ).join('');
+    document.getElementById('it').textContent=result.improved;
 
-    document.getElementById('improvedText').textContent = result.improved;
+    document.getElementById('tl').innerHTML=result.tips.map(function(t){
+      return '<div class="ti"><div class="tt">'+t.tip+'</div><div class="td">'+t.detail+'</div></div>';
+    }).join('');
 
-    document.getElementById('tipsList').innerHTML = result.tips.map(t =>
-      `<div class="tip-item"><div class="tip-title"><i class="ti ti-bulb" style="font-size:14px;vertical-align:-2px;color:#9e9e99"></i> ${t.tip}</div><div class="tip-detail">${t.detail}</div></div>`
-    ).join('');
-
-    addUsed();
-    document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
-  } catch(err) {
-    document.getElementById('loadingMsg').textContent = 'Something went wrong. Please try again.';
+    au();
+    document.getElementById('rc').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(err){
+    document.getElementById('lm').textContent='Something went wrong. Please try again.';
     console.error(err);
   }
-  btn.disabled = false;
+  btn.disabled=false;
 }
 
-function copyText() {
-  navigator.clipboard.writeText(document.getElementById('improvedText').textContent).then(() => {
-    const b = document.querySelector('.copy-btn');
-    b.textContent = '✓ Copied!';
-    setTimeout(() => b.innerHTML = '<i class="ti ti-copy" style="font-size:13px;vertical-align:-2px"></i> Copy', 2000);
+function cp(){
+  navigator.clipboard.writeText(document.getElementById('it').textContent).then(function(){
+    var b=document.querySelector('.cb');
+    b.textContent='Copied!';
+    setTimeout(function(){b.textContent='Copy'},2000);
   });
 }
 </script>
