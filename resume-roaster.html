@@ -281,16 +281,26 @@ Scores are 0-100. Be accurate — a mediocre resume scores 40-65, not 85+.`;
     animateBar(60, 2500);
     document.getElementById('loadingMsg').textContent = 'AI is reading between the lines...';
 
-    const res = await fetch('https://roastcv-beige.vercel.app/api/roast', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resumeText, role, intensity })
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': 'sk-ant-api03-Xb8jXLGE1zXl2sFABXrPRSAuFIoff9kRb5H9qBH_zrhTXC',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
 
     animateBar(90, 400);
     document.getElementById('loadingMsg').textContent = 'Preparing your roast...';
-    const result = await res.json();
-    if(result.error) throw new Error(result.error);
+    const data = await res.json();
+    const raw = data.content.map(b => b.text||'').join('');
+    const result = JSON.parse(raw.replace(/```json|```/g,'').trim());
 
     document.getElementById('loadingSection').style.display = 'none';
     document.getElementById('resultCard').style.display = 'block';
